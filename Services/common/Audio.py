@@ -8,7 +8,7 @@ from Config import *
 
 class Audio():
     def __init__(self, core):
-        print 'Audio:: Starting Init'
+        print('Audio:: Starting Init')
         # max out system volume
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         print(core.RunCommand("amixer  sset Speaker,0 90%"))

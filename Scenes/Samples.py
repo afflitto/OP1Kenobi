@@ -2,19 +2,15 @@
 from Config import *
 from Resources.Colors import *
 
-# services
-from Services.Audio import *
-from Services.Video import *
-from Services.Core import *
-from Services.Input import *
+from Scenes.menu import Menu, MenuEntry
 
-class Samples():
+class Samples(Menu):
     def loadDirectoryData(self, path):
         files, directories = self.core.GetDataInDirectory(path)
         self.currentDirectories = directories
         self.currentFiles = []
         self.currentIndex = 0
-    
+
         for file in files:
             if ".wav" in file.lower() or ".mp3" in file.lower():
                 self.currentFiles.append(file)
@@ -36,18 +32,26 @@ class Samples():
             return None
 
     def __init__(self, core, audio, video, input):
-        print 'Samples:: Starting Init'
-        self.core = core
-        self.audio = audio
-        self.video = video
-        self.input = input
+        print('Samples:: Starting Init')
+        super().__init__(core, audio, video, input)
         self.g = 0
         self.currentIndex = 0
         self.lastDirectories = [Config.MediaDirectory + "/samples"]
         self.volume = self.audio.GetVolume()
-        
+
         # load base directory
         self.loadDirectoryData(self.lastDirectories[0]);
+
+        self.menu_entries = [
+            MenuEntry(os.path.basename(directory), directory)
+            for directory in self.currentDirectories
+        ]
+
+        if len(self.menu_entries) > 0:
+            self.menu_entries[0].is_selected = True
+
+    def SelectMenuEntry(self, menu_entry:MenuEntry):
+        pass
 
     def Dispose(self):
         pass
@@ -70,7 +74,7 @@ class Samples():
     def SelectItem(self):
         objectType = self.getObjectType(self.currentIndex)
         currentObject = self.getObject(self.currentIndex)
-        
+
         if objectType == "Directory":
             self.lastDirectories.append(currentObject)
             self.loadDirectoryData(currentObject);
@@ -81,7 +85,7 @@ class Samples():
 
     def GoBack(self):
         if len(self.lastDirectories) == 1:
-            from Scenes.MainMenu import *
+            from Scenes.MainMenu import MainMenu
             self.core.ChangeScene(MainMenu)
         else:
             self.lastDirectories.pop()
@@ -106,11 +110,11 @@ class Samples():
         for index in range(self.currentIndex, self.currentIndex + 10):
             currentObject = self.getObject(index)
             objectType = self.getObjectType(index)
-                
+
             if objectType is not None:
                 self.video.DrawSmallText(
-                    indexColor if self.currentIndex == index else Config.PrimaryTextColor, 
-                    (10, line * 11), 
+                    indexColor if self.currentIndex == index else Config.PrimaryTextColor,
+                    (10, line * 11),
                     currentObject[-18:])
             else:
                 pass
@@ -122,35 +126,27 @@ class Samples():
 
         for i in range(0, int(self.volume * 10)):
             volumeBar += "|"
-        
+
         self.video.DrawSmallText(
-            Config.PrimaryTextColor, 
-            (10, 115), 
+            Config.PrimaryTextColor,
+            (10, 50),
             str(len(self.currentDirectories)) + "," + str(len(self.currentFiles)) + " : " + volumeBar)
 
     def InputUpdate(self, k1, k2, k3, ku, kd, kl, kr, kp):
-        if ku:
-            self.ChangeMenuIndex(-1)
-
-        elif kd:
-            self.ChangeMenuIndex(1)
-
-        elif kl:
+        if kl:
             self.volume = self.audio.LowerVolume(0.1)
-            
         elif kr:
             self.volume = self.audio.RaiseVolume(0.1)
 
         if k1:
             self.SelectItem()
-
         if k2:
             self.PlayAll()
 
-        if k3:
-            self.GoBack()
-            
+        super().InputUpdate(k1, k2, k3, ku, kd, kl, kr, kp)
+
+
     def Draw(self):
+        super().Draw()
         indexColor = (100, self.g, 100)
-        self.DrawEntries(indexColor)
         self.DrawVolume()

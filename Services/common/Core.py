@@ -15,7 +15,7 @@ class Core():
     input = None
 
     def __init__(self):
-        print 'Core:: Starting Init'
+        print('Core:: Starting Init')
         self.running = False
         pygame.init()
 
@@ -36,8 +36,8 @@ class Core():
         self.running = false
 
     def ChangeScene(self, scene):
-        print 'Core:: Changing scene'
-        
+        print('Core:: Changing scene')
+
         if (Core.currentScene):
             Core.currentScene.Dispose()
 
@@ -47,9 +47,9 @@ class Core():
         return time.get_ticks()
 
     def RunCommand(self, cmd):
-    	p = Popen(
-            cmd, 
-            shell = True, 
+        p = Popen(
+            cmd,
+            shell = True,
             stdout = PIPE)
         return p.communicate()[0]
 
@@ -61,7 +61,7 @@ class Core():
 
     def IsUSBDeviceConnected(self, vendor, product):
       return usb.core.find(
-          idVendor = vendor, 
+          idVendor = vendor,
           idProduct = product) is not None
 
     def GetUSBMountPath(self, usbId):
@@ -74,7 +74,7 @@ class Core():
 
     def MountDevice(self, source, target):
         ret = os.system('mount {} {}'.format(source, target))
-        
+
         if ret not in (0, 8192):
             raise RuntimeError("Error mounting {} on {}: {}".format(source, target, ret))
 
@@ -92,8 +92,8 @@ class Core():
         for filename in os.listdir(path):
             fullPath = path + filename
             tapeList.append([filename, fullPath])
-            #if filename.endswith(".atm") or filename.endswith(".py"): 
-            
+            #if filename.endswith(".atm") or filename.endswith(".py"):
+
         tapeList.sort()
 
     def SplitFilePathParts(self, filePath):
@@ -126,7 +126,7 @@ class Core():
             sh.copystat(src, dst)
 
         lst = os.listdir(src)
-        
+
         if ignore:
             excl = ignore(src, lst)
             lst = [x for x in lst if x not in excl]
@@ -138,7 +138,7 @@ class Core():
             if symlinks and os.path.islink(s):
                 if os.path.lexists(d):
                     os.remove(d)
-                
+
                 print("Core:: Creating Symlink")
                 os.symlink(os.readlink(s), d)
 
@@ -159,7 +159,7 @@ class Core():
                 sh.copy2(s, d)
 
     def GetDataInDirectory(self, path):
-        print 'Core:: Loading directory information for ' + path
+        print('Core:: Loading directory information for ' + path)
 
         files = []
         directories = []
@@ -170,7 +170,7 @@ class Core():
             del dirnames[:]
             for name in filenames:
                 files.append(os.path.join(dirpath, name))
-        
-        print 'Core:: Returning ' + str(len(files)) + ' files and ' + str(len(directories)) + ' directories'
+
+        print('Core:: Returning ' + str(len(files)) + ' files and ' + str(len(directories)) + ' directories')
 
         return (files, directories)

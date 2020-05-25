@@ -11,3 +11,6 @@ Media/synth/*
 Media/synth/.gitkeep
 
 *.pyc
+
+deployment-config.json
+.ftpconfig

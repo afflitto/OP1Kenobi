@@ -8,39 +8,44 @@ from Config import *
 from Resources.Colors import *
 
 # services
-from Services.Audio import *
-from Services.Video import *
-from Services.Core import *
-from Services.Input import *
+from Services.common.Audio import *
+from Services.common.Core import *
+from Services.common.Input import Key
+#
+# from Services.pc.pc_video import PCVideo
+# from Services.pc.pc_input import PCInput
+from Services.pi.pi_input import PiInput
+from Services.pi.pi_video_sh1106 import PiVideoSH1106
 
 # scenes
 from Scenes.MainMenu import *
 
 # initialize
-print 'Main:: Starting Init'
+print('Main:: Starting Init')
 core = Core()
 
-video = Video(
+video = PiVideoSH1106(
     Config.DisplayWidth,
     Config.DisplayHeight,
     Config.FontFile,
     Config.LargeFontSize,
     Config.SmallFontSize)
-
 audio = Audio(core)
+input = PiInput()
 
-input = Input(
-    Config.Key1Pin,
-    Config.Key2Pin,
-    Config.Key3Pin,
-    Config.KeyUpPin,
-    Config.KeyDownPin,
-    Config.KeyLeftPin,
-    Config.KeyRightPin,
-    Config.KeyPressPin)
+# video = PCVideo(
+#     Config.DisplayWidth,
+#     Config.DisplayHeight,
+#     Config.FontFile,
+#     Config.LargeFontSize,
+#     Config.SmallFontSize
+# )
+# audio = Audio(core)
+# input = PCInput()
+
 
 def Main():
-    print 'Main:: Starting Main'
+    print('Main:: Starting Main')
     global core
     global video
     global audio
@@ -59,38 +64,31 @@ def Main():
         if (core.GetTime() - lastDisplayUpdateTime > Config.DisplayUpdateSpeed):
             lastDisplayUpdateTime = core.GetTime()
             video.FillScreen(Colors.Black)
-            core.currentScene.Draw()            
+            core.currentScene.Draw()
 
         if (core.GetTime() - lastInputUpdateTime > Config.InputUpdateSpeed):
             lastInputUpdateTime = core.GetTime()
             core.currentScene.InputUpdate(
-                input.KeyDown(Config.Key1Pin),
-                input.KeyDown(Config.Key2Pin),
-                input.KeyDown(Config.Key3Pin),
-                input.KeyDown(Config.KeyUpPin),
-                input.KeyDown(Config.KeyDownPin),
-                input.KeyDown(Config.KeyLeftPin),
-                input.KeyDown(Config.KeyRightPin),
-                input.KeyDown(Config.KeyPressPin))
+                input.KeyDown(Key.KEY_1),
+                input.KeyDown(Key.KEY_2),
+                input.KeyDown(Key.KEY_3),
+                input.KeyDown(Key.KEY_UP),
+                input.KeyDown(Key.KEY_DOWN),
+                input.KeyDown(Key.KEY_LEFT),
+                input.KeyDown(Key.KEY_RIGHT),
+                input.KeyDown(Key.KEY_PRESS),
+            )
 
         video.Update()
         audio.Update()
-        
+        input.Update()
+
 def Intro():
-    print 'Main:: Starting Intro'
+    print('Main:: Starting Intro')
     global core
     global video
     global audio
 
-    video.FillScreen(Colors.Black)
-
-    video.DrawLargeText(
-        Config.PrimaryTextColor, 
-        (10, 10), 
-        'Intro!')
-
-    video.Update()
-        
     # TODO: Intro screen
 
 if __name__ == '__main__':
